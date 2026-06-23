@@ -71,6 +71,20 @@ Nocturne checks the official 3hs version for compatibility. It does not install 
 
 When upstream publishes a new release, its source changes must be merged into Nocturne and a new Nocturne CIA must be built.
 
+## Release checklist
+
+Nocturne's launch updater is based on GitHub Releases. Before publishing a feature or fix release, keep these in sync:
+
+- Bump `VERSION_MAJOR`, `VERSION_MINOR`, `VERSION_PATCH`, and `VERSION_DESC` in `include/update.hh`.
+- Update `nocturne-version` to the same plain version string, for example `1.5.13`.
+- Add release notes to `NOCTURNE_CHANGELOG.md`.
+- Build with `perl build.pl --target release`.
+- Create a matching tag and GitHub release, for example `v1.5.13`.
+- Attach both `3hs.cia` and `nocturne-version` to the GitHub release.
+- Mark the newest release as **Latest**.
+
+If `nocturne-version` is missing or does not match the compiled app version, installed clients may not see the update correctly.
+
 ## Building
 
 The project uses devkitARM, libctru, Citro2D/Citro3D, makerom, bannertool, Perl, and mbedTLS.
