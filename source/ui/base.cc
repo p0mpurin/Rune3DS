@@ -126,12 +126,8 @@ static void draw_top_background(ui::Keys& keys)
 {
 	if(user_background_active)
 	{
-		/* Center the wallpaper in 800px mode if it's narrower than the screen.
-		 * This avoids ugly upscaling of 400px wallpapers to 800px. */
-		float bg_x = g_top_wide
-			? (800.0f - user_top_bg_width) * 0.5f
-			: 0.0f;
-		C2D_DrawImageAt(user_top_background, bg_x, 0.0f, -0.9f);
+		/* In 800px mode the wallpaper is cropped to 800px — draw at origin. */
+		C2D_DrawImageAt(user_top_background, 0.0f, 0.0f, -0.9f);
 	}
 	else if(top_background->has_image())
 	{
@@ -615,29 +611,31 @@ void ui::background_rect(ui::Screen scr, float x, float y, float z, float w, flo
 	}
 }
 
-static bool make_cover_image(C2D_Image *out, const u8 *source, int sw, int sh, int dw, int dh)
+static bool make_fit_image(C2D_Image *out, const u8 *source, int sw, int sh, int dw, int dh)
 {
 	if(sw <= 0 || sh <= 0 || dw <= 0 || dh <= 0)
 		return false;
 
-	std::vector<u32> pixels((size_t) dw * dh);
-	const float scale = std::max(dw / (float) sw, dh / (float) sh);
-	const float visible_w = dw / scale;
-	const float visible_h = dh / scale;
-	const float crop_x = (sw - visible_w) * 0.5f;
-	const float crop_y = (sh - visible_h) * 0.5f;
+	/* Scale to fit within the destination, preserving aspect ratio.
+	 * This is like CSS object-fit: contain — the entire image is
+	 * visible and the rest is transparent. */
+	std::vector<u32> pixels((size_t) dw * dh, 0); /* zero = transparent/black */
+	const float scale = std::min(dw / (float) sw, dh / (float) sh);
+	const int out_w = (int)(sw * scale);
+	const int out_h = (int)(sh * scale);
+	const int offset_x = (dw - out_w) / 2;
+	const int offset_y = (dh - out_h) / 2;
 
-	for(int y = 0; y < dh; ++y)
+	for(int y = 0; y < out_h; ++y)
 	{
-		int sy = (int) (crop_y + (y + 0.5f) / scale);
+		int sy = (int)(y / scale);
 		sy = std::max(0, std::min(sh - 1, sy));
-		for(int x = 0; x < dw; ++x)
+		for(int x = 0; x < out_w; ++x)
 		{
-			int sx = (int) (crop_x + (x + 0.5f) / scale);
+			int sx = (int)(x / scale);
 			sx = std::max(0, std::min(sw - 1, sx));
 			const u8 *rgba = source + ((size_t) sy * sw + sx) * 4;
-			/* Same byte order produced by rgba_to_abgr(). */
-			pixels[(size_t) y * dw + x] =
+			pixels[(size_t)(y + offset_y) * dw + (x + offset_x)] =
 				((u32) rgba[0] << 24) | ((u32) rgba[1] << 16)
 				| ((u32) rgba[2] << 8) | rgba[3];
 		}
@@ -679,13 +677,12 @@ bool ui::set_user_background(const std::string& path)
 
 	C2D_Image next_top = { nullptr, nullptr };
 	C2D_Image next_bottom = { nullptr, nullptr };
-	/* In 800px mode, cap the crop to the source width. If the wallpaper
-	 * source is only 400px (designed for normal 3DS), don't upscale it
-	 * — it'll be centred in the 800px framebuffer. */
-	unsigned top_w = g_top_wide ? std::min<unsigned>(width, 800) : 400;
-	bool ok = make_cover_image(&next_top, bitmap, width, height,
+	/* Fit the entire image within the screen — no cropping, black bars
+	 * on the sides if the aspect ratio doesn't match. */
+	unsigned top_w = g_top_wide ? 800 : 400;
+	bool ok = make_fit_image(&next_top, bitmap, width, height,
 		top_w, 240)
-		&& make_cover_image(&next_bottom, bitmap, width, height, 320, 240);
+		&& make_fit_image(&next_bottom, bitmap, width, height, 320, 240);
 	stbi_image_free(bitmap);
 
 	if(!ok)
