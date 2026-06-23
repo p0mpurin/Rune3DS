@@ -45,6 +45,14 @@ The experimental direct-socket transport can be selected under **Settings → Pe
 
 You can install a newer Nocturne CIA over an existing installation. If HOME Menu artwork remains cached, reboot the console or delete and reinstall the application once.
 
+### FBI QR install
+
+Scan this with **FBI → Remote Install → Scan QR Code**:
+
+![Nocturne v1.2.2 FBI QR](assets/nocturne-v1.2.2-fbi-qr.png)
+
+This QR points directly to the `nocturne-v1.2.2.cia` release asset.
+
 ## Wallpapers
 
 Place `.png`, `.jpg`, or `.jpeg` files in:
