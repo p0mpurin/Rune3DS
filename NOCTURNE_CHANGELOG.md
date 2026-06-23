@@ -1,5 +1,9 @@
 # Nocturne changelog
 
+## 1.2.1
+
+- Fixed text and donation link overlap on the game installation screen
+
 ## 1.2.0
 
 - Added eased selection animation to lists and command menus

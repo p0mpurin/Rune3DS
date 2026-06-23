@@ -59,13 +59,13 @@ void make_render_queue(ui::I18NEnabledRenderQueue& queue, ui::ProgressBar **bar,
 	ui::builder<ui::Text>(ui::progloc(), "Requesting download link")
 		.size(0.40f)
 		.x(ui::layout::center_x)
-		.y(48.0f)
+		.under(donate, 8.0f)
 		.max_width(ui::screen_width(ui::progloc()) - 20.0f)
 		.wrap()
 		.add_to(stage, queue);
 
 	ui::builder<ui::ProgressBar>(ui::progloc())
-		.y(105.0f)
+		.y((*stage)->get_y() + (*stage)->height() + 40.0f)
 		.use_speed()
 		.add_to(bar, queue);
 
