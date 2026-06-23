@@ -1,5 +1,10 @@
 # Nocturne changelog
 
+## 1.5.18
+
+- Switched update metadata back to the tiny GitHub release asset now that long redirects are supported
+- Avoided the GitHub Releases API response that fails on the 3DS HTTP service
+
 ## 1.5.17
 
 - Fixed GitHub Releases API version parsing when JSON contains whitespace

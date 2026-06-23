@@ -14,11 +14,10 @@ These rules are mandatory for AI agents and maintainers before committing or pub
 - Future GitHub releases must include both assets:
   - `3hs.cia`
   - `nocturne-version`
-- The launch updater checks the latest version via the GitHub Releases API:
-  - `https://api.github.com/repos/p0mpurin/just-an-hshop-fork/releases/latest`
-- The launch updater downloads the CIA from GitHub's stable latest-release URL:
+- The launch updater checks the latest version and downloads the CIA from GitHub's stable latest-release URLs:
+  - `https://github.com/p0mpurin/just-an-hshop-fork/releases/latest/download/nocturne-version`
   - `https://github.com/p0mpurin/just-an-hshop-fork/releases/latest/download/3hs.cia`
-- Keep publishing `nocturne-version` as a release asset. It is a release sanity marker and fallback artifact even though update detection no longer relies on release-asset redirects for the version check.
+- Keep publishing `nocturne-version` as a release asset. Update detection depends on it.
 - Do not point Nocturne auto-update at the official 3hs CIA. Official 3hs updates are only a compatibility/source signal because installing stock 3hs would overwrite this fork.
 
 ## Build and Publish Rules
