@@ -6,15 +6,17 @@ A modern Nintendo 3DS fork of 3hs with an OLED-focused interface, custom wallpap
 
 ## Highlights
 
-- OLED-black and light-pink visual redesign
+- OLED-black and light-pink visual redesign with refined colour palette
 - Smooth eased selection, popup, and progress animations
 - Crisp pixel-aligned typography with readable text sizing
 - Custom PNG/JPEG wallpapers from `/3ds/3hs/backgrounds/`
 - Adjustable wallpaper dimming
 - Redesigned title details and download interface
 - Clear `[A]`, `[B]`, `[X]`, and `[Y]` action badges
+- **Size badges** shown next to titles in the browse list
+- **Queue reordering** with `[L]`/`[R]` buttons
 - Experimental 800px top-screen mode for testing sharper top-screen layouts
-- Live download stage, speed, progress, and ETA
+- Live download stage, speed, progress, and ETA with speed graph
 - Hardware-adaptive performance pipeline:
   - safe Old 3DS/2DS compatibility mode
   - 804 MHz CPU and L2 cache
@@ -49,9 +51,9 @@ You can install a newer Nocturne CIA over an existing installation. If HOME Menu
 
 Scan this with **FBI → Remote Install → Scan QR Code**:
 
-<img src="assets/nocturne-v1.2.2-fbi-qr.png" alt="Nocturne v1.2.2 FBI QR" width="320">
+<img src="assets/nocturne-v1.5.11-fbi-qr.png" alt="Nocturne v1.5.11 FBI QR" width="320">
 
-This QR points directly to the `nocturne-v1.2.2.cia` release asset.
+This QR points directly to the `3hs.cia` release asset for v1.5.11.
 
 ## Wallpapers
 
