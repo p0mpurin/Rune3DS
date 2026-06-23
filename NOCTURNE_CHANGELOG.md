@@ -1,5 +1,9 @@
 # Nocturne changelog
 
+## 1.5.13
+
+- Small polish release for validating the GitHub-based in-app updater
+
 ## 1.5.12
 
 - Added Nocturne launch-time self-updates from GitHub Releases
