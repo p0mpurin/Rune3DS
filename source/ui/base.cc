@@ -23,6 +23,7 @@
 #include "settings.hh"
 #include "i18n.hh"
 #include "log.hh"
+#include "mng.hh"
 
 #include <3rd/stb_image.h>
 #include <vector>
@@ -85,6 +86,15 @@ UI_CTHEME_GETTER(color_text, ui::theme::text_color)
 static C3D_RenderTarget *create_top_target()
 {
 	g_top_wide = !!ISET_TOP_WIDE_EXPERIMENTAL;
+
+	/* 800px wide mode requires New 3DS hardware — the Old 2DS/3DS LCD
+	 * controller does not support the wider framebuffer stride. */
+	if(g_top_wide && !ctr::mng::is_n3ds())
+	{
+		ilog("800px mode disabled: Old 3DS/2DS hardware does not support wide framebuffer");
+		g_top_wide = false;
+	}
+
 	gfxSet3D(false);
 	gfxSetWide(g_top_wide);
 
@@ -96,14 +106,40 @@ static C3D_RenderTarget *create_top_target()
 		{
 			C3D_RenderTargetSetOutput(target, GFX_TOP, GFX_LEFT,
 				TOP_WIDE_TRANSFER_FLAGS);
+			ilog("800px top-screen mode active");
 			return target;
 		}
 
+		elog("800px mode: C3D_RenderTargetCreate failed, falling back to 400px");
 		g_top_wide = false;
 		gfxSetWide(false);
 	}
 
 	return C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
+}
+
+/* Draw the top-screen background respecting the current display mode.
+ * In 800px wide mode, user wallpapers are already pre-cropped to 800px,
+ * and theme background sprites (always 400px) are centered. */
+static void draw_top_background(ui::Keys& keys)
+{
+	if(user_background_active)
+	{
+		C2D_DrawImageAt(user_top_background, 0.0f, 0.0f, -0.9f);
+	}
+	else if(top_background->has_image())
+	{
+		if(g_top_wide)
+		{
+			/* Center the 400px theme sprite in the 800px framebuffer */
+			top_background->set_x(200.0f);
+		}
+		else
+		{
+			top_background->set_x(0.0f);
+		}
+		top_background->render(keys);
+	}
 }
 
 static inline void begin_top_scene()
@@ -637,7 +673,8 @@ bool ui::set_user_background(const std::string& path)
 
 	C2D_Image next_top = { nullptr, nullptr };
 	C2D_Image next_bottom = { nullptr, nullptr };
-	bool ok = make_cover_image(&next_top, bitmap, width, height, 400, 240)
+	bool ok = make_cover_image(&next_top, bitmap, width, height,
+		g_top_wide ? 800 : 400, 240)
 		&& make_cover_image(&next_bottom, bitmap, width, height, 320, 240);
 	stbi_image_free(bitmap);
 
@@ -834,10 +871,7 @@ bool ui::RenderQueue::render_exclusive_frame(ui::Keys& keys)
 	bool ret = true;
 
 	begin_top_scene();
-	if(user_background_active)
-		C2D_DrawImageAt(user_top_background, 0.0f, 0.0f, -0.9f);
-	else if(top_background->has_image())
-		top_background->render(keys);
+	draw_top_background(keys);
 	draw_nocturne_chrome(ui::Screen::top);
 	ret &= this->render_top(keys);
 
@@ -860,10 +894,7 @@ bool ui::RenderQueue::render_frame(ui::Keys& keys)
 	bool ret = true;
 
 	begin_top_scene();
-	if(user_background_active)
-		C2D_DrawImageAt(user_top_background, 0.0f, 0.0f, -0.9f);
-	else if(top_background->has_image())
-		top_background->render(keys);
+	draw_top_background(keys);
 	draw_nocturne_chrome(ui::Screen::top);
 	ret &= this->render_top(keys);
 	ret &= g_renderqueue.render_top(keys);

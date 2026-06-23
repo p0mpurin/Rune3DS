@@ -13,6 +13,12 @@
 - Increased CIA write pipeline from 2 to 3 slots for better write-variance tolerance
 - Removed panic_assert on partial HTTPC chunks (no more random crash deaths)
 - Pre-fetch CDN download URL while user browses title details (saves ~500ms on install start)
+- **Made 800px top-screen mode fully functional:**
+  - Wallpapers now render at 800px when wide mode is active (were stuck at 400px)
+  - Theme background sprites are centered in 800px framebuffer
+  - Old 3DS/2DS hardware is blocked from enabling the mode (hardware doesn't support it)
+  - Failure to allocate the 800px framebuffer is now logged
+  - Proper hardware capability check prevents corrupted display on unsupported devices
 
 ## 1.2.2
 
