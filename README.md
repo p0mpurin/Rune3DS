@@ -49,7 +49,7 @@ You can install a newer Nocturne CIA over an existing installation. If HOME Menu
 
 Scan this with **FBI → Remote Install → Scan QR Code**:
 
-![Nocturne v1.2.2 FBI QR](assets/nocturne-v1.2.2-fbi-qr.png)
+<img src="assets/nocturne-v1.2.2-fbi-qr.png" alt="Nocturne v1.2.2 FBI QR" width="320">
 
 This QR points directly to the `nocturne-v1.2.2.cia` release asset.
 
