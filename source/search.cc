@@ -569,7 +569,7 @@ void show_search()
 	ui::I18NEnabledRenderQueue rq;
 
 	constexpr float filter_padding = 5.0f;
-	constexpr float filter_div = (ui::screen_width(ui::Screen::bottom) - filter_padding * 2.0f) / 2.0f;
+	constexpr float filter_div = (ui::dimensions::width_bottom - filter_padding * 2.0f) / 2.0f;
 
 	static constexpr int ntabs = 7;
 
@@ -1037,4 +1037,3 @@ void show_search()
 	rq.render_finite_button(KEY_B | KEY_START);
 	ui::set_focus(false);
 }
-

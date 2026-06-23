@@ -3,6 +3,8 @@
 ## 1.2.1
 
 - Fixed text and donation link overlap on the game installation screen
+- Removed decorative frosted bars that could appear empty after changing screens
+- Added an experimental 800px top-screen display option for real-hardware testing
 
 ## 1.2.0
 

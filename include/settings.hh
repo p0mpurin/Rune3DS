@@ -82,6 +82,7 @@ enum NewSettings_flags0 {
 	FLAG0_PROXY_ENABLED     = 0x100000,
 	FLAG0_BACKGROUND_TIP_SEEN = 0x200000,
 	FLAG0_DIRECT_CDN_EXPERIMENTAL = 0x400000,
+	FLAG0_TOP_WIDE_EXPERIMENTAL = 0x800000,
 };
 
 #define ISET_RESUME_DOWNLOADS (get_nsettings()->flags0 & FLAG0_RESUME_DOWNLOADS)
@@ -103,6 +104,7 @@ enum NewSettings_flags0 {
 #define ISET_PROXY_ENABLED (get_nsettings()->flags0 & FLAG0_PROXY_ENABLED)
 #define ISET_BACKGROUND_TIP_SEEN (get_nsettings()->flags0 & FLAG0_BACKGROUND_TIP_SEEN)
 #define ISET_DIRECT_CDN_EXPERIMENTAL (get_nsettings()->flags0 & FLAG0_DIRECT_CDN_EXPERIMENTAL)
+#define ISET_TOP_WIDE_EXPERIMENTAL (get_nsettings()->flags0 & FLAG0_TOP_WIDE_EXPERIMENTAL)
 
 enum SettingsId
 {
@@ -128,6 +130,7 @@ enum SettingsId
 	ID_Background,   // show as text: custom menu
 	ID_WallpaperDim, // show as text: selector
 	ID_Performance,  // show as text: information
+	ID_TopWide,      // bool: experimental 800px top screen
 };
 
 void reset_settings(bool set_default_lang = false);

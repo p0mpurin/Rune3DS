@@ -222,9 +222,8 @@ namespace ui
 	bool set_user_background(const std::string& path);
 	bool user_background_loaded();
 
-	/* gets the width of a screen */
-	constexpr inline float screen_width(ui::Screen scr)
-	{ return scr == ui::Screen::top ? ui::dimensions::width_top : ui::dimensions::width_bottom; }
+	/* gets the current logical width of a screen */
+	float screen_width(ui::Screen scr);
 	/* gets the height of the screen (exists for consistency) */
 	constexpr inline float screen_height()
 	{ return ui::dimensions::height; }

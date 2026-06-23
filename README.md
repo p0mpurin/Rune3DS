@@ -13,6 +13,7 @@ A modern Nintendo 3DS fork of 3hs with an OLED-focused interface, custom wallpap
 - Adjustable wallpaper dimming
 - Redesigned title details and download interface
 - Clear `[A]`, `[B]`, `[X]`, and `[Y]` action badges
+- Experimental 800px top-screen mode for testing sharper top-screen layouts
 - Live download stage, speed, progress, and ETA
 - Hardware-adaptive performance pipeline:
   - safe Old 3DS/2DS compatibility mode

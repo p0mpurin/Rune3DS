@@ -518,6 +518,8 @@ static bool serialize_id_bool(SettingsId ID)
 		return ISET_DISABLE_GRAPH;
 	case ID_GotoRegion:
 		return ISET_GOTO_REGION;
+	case ID_TopWide:
+		return ISET_TOP_WIDE_EXPERIMENTAL;
 	case ID_TimeFmt:
 	case ID_ProgLoc:
 	case ID_Language:
@@ -551,6 +553,7 @@ static std::string serialize_id_text(SettingsId ID)
 	case ID_DisGraph:
 	case ID_GotoRegion:
 	case ID_ProxyEnabled:
+	case ID_TopWide:
 		panic("impossible text setting switch case reached");
 	case ID_TimeFmt:
 		return ISET_BAD_TIME_FORMAT ? STRING(fmt_12h) : STRING(fmt_24h);
@@ -626,7 +629,7 @@ static void show_update_proxy()
 	ui::Button *host;
 	ui::Button *port;
 
-	constexpr float w = ui::screen_width(ui::Screen::bottom) - 20.0f;
+	constexpr float w = ui::dimensions::width_bottom - 20.0f;
 	constexpr float h = 20;
 
 #define UPDATE_LABELS() do { \
@@ -949,6 +952,10 @@ static void update_settings_ID(SettingsId ID)
 	case ID_ProxyEnabled:
 		g_nsettings.flags0 ^= FLAG0_PROXY_ENABLED;
 		break;
+	case ID_TopWide:
+		g_nsettings.flags0 ^= FLAG0_TOP_WIDE_EXPERIMENTAL;
+		ui::notice("800px top-screen mode changed.\n\nRestart Nocturne for the framebuffer change to fully apply.\n\nThis is experimental and may not work on Old 2DS.");
+		break;
 	// Enums
 	case ID_TimeFmt:
 	{
@@ -1092,6 +1099,7 @@ void log_settings()
 		"disableGraph: %s, "
 		"backgroundPath: %s, "
 		"wallpaperDim: %u, "
+		"topWide: %s, "
 		"performanceMode: new3ds",
 			BOOL(ISET_RESUME_DOWNLOADS), BOOL(ISET_LOAD_FREE_SPACE),
 			BOOL(ISET_SHOW_BATTERY), BOOL(ISET_SHOW_NET), BOOL(ISET_BAD_TIME_FORMAT),
@@ -1101,7 +1109,7 @@ void log_settings()
 			method2str_en(SETTING_DEFAULT_SORTMETHOD), direction2str_en(SETTING_DEFAULT_SORTDIRECTION),
 			BOOL(g_nsettings.proxy_port != 0), g_nsettings.theme_path.c_str(), BOOL(ISET_DISABLE_GRAPH),
 			g_nsettings.background_path.empty() ? "(none)" : g_nsettings.background_path.c_str(),
-			g_nsettings.wallpaper_dim);
+			g_nsettings.wallpaper_dim, BOOL(ISET_TOP_WIDE_EXPERIMENTAL));
 #undef BOOL
 }
 
@@ -1145,6 +1153,7 @@ void show_settings()
 		{ str::background_image, str::background_image_desc, ID_Background, true },
 		{ str::wallpaper_dimming, str::wallpaper_dimming_desc, ID_WallpaperDim, true },
 		{ str::performance_mode, str::performance_mode_desc, ID_Performance, true },
+		{ str::top_wide_mode, str::top_wide_mode_desc, ID_TopWide, false },
 	};
 
 	panic_assert(settingsInfo.size() > 0, "empty settings meta table");

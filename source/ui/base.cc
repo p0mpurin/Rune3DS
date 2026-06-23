@@ -31,10 +31,15 @@
 /* internal constants */
 #define THEME_PATH get_settings()->isLightMode ? "romfs:/light.hstx" : "romfs:/dark.hstx"
 #define SPRITESHEET_PATH "romfs:/gfx/next.t3x"
+#define TOP_WIDE_TRANSFER_FLAGS \
+	(GX_TRANSFER_FLIP_VERT(0) | GX_TRANSFER_OUT_TILED(0) | GX_TRANSFER_RAW_COPY(0) | \
+	GX_TRANSFER_IN_FORMAT(GX_TRANSFER_FMT_RGBA8) | GX_TRANSFER_OUT_FORMAT(GX_TRANSFER_FMT_RGB8) | \
+	GX_TRANSFER_SCALING(GX_TRANSFER_SCALE_NO))
 
 /* global variables */
 static C3D_RenderTarget *g_top;
 static C3D_RenderTarget *g_bot;
+static bool g_top_wide;
 
 static ui::RenderQueue g_renderqueue;
 static std::list<ui::RenderQueue *> g_i18n_rq_register;
@@ -76,6 +81,42 @@ UI_CTHEME_GETTER(color_button, ui::theme::button_background_color) UI_CTHEME_GET
 UI_CTHEME_GETTER(color_text, ui::theme::text_color)
 
 /* helpers */
+
+static C3D_RenderTarget *create_top_target()
+{
+	g_top_wide = !!ISET_TOP_WIDE_EXPERIMENTAL;
+	gfxSet3D(false);
+	gfxSetWide(g_top_wide);
+
+	if(g_top_wide)
+	{
+		C3D_RenderTarget *target = C3D_RenderTargetCreate(240, 800,
+			GPU_RB_RGBA8, GPU_RB_DEPTH24_STENCIL8);
+		if(target)
+		{
+			C3D_RenderTargetSetOutput(target, GFX_TOP, GFX_LEFT,
+				TOP_WIDE_TRANSFER_FLAGS);
+			return target;
+		}
+
+		g_top_wide = false;
+		gfxSetWide(false);
+	}
+
+	return C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
+}
+
+static inline void begin_top_scene()
+{
+	C2D_SceneBegin(g_top);
+	C2D_ViewReset();
+}
+
+static inline void begin_bottom_scene()
+{
+	C2D_SceneBegin(g_bot);
+	C2D_ViewReset();
+}
 
 Result ui::shell_is_open(bool *is_open)
 {
@@ -231,6 +272,7 @@ void ui::init(C3D_RenderTarget *top, C3D_RenderTarget *bot)
 {
 	g_top = top;
 	g_bot = bot;
+	g_top_wide = false;
 	common_init();
 }
 
@@ -242,7 +284,8 @@ bool ui::init()
 	C2D_Prepare();
 
 	g_bot = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
-	g_top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
+	g_top = create_top_target();
+	if(!g_top) return false;
 
 	common_init();
 	return true;
@@ -622,6 +665,13 @@ bool ui::user_background_loaded()
 	return user_background_active;
 }
 
+float ui::screen_width(ui::Screen scr)
+{
+	if(scr == ui::Screen::top)
+		return g_top_wide ? 800.0f : ui::dimensions::width_top;
+	return ui::dimensions::width_bottom;
+}
+
 static void draw_nocturne_chrome(ui::Screen screen)
 {
 	const float width = ui::screen_width(screen);
@@ -631,20 +681,6 @@ static void draw_nocturne_chrome(ui::Screen screen)
 		 * scrim guarantees contrast even for pure-white photographs. */
 		C2D_DrawRectSolid(0.0f, 0.0f, -0.80f, width, ui::screen_height(),
 			C2D_Color32(0, 0, 0, get_nsettings()->wallpaper_dim));
-	}
-
-	/* The same floating glass bars are used on both screens. */
-	C2D_DrawRectSolid(0.0f, 0.0f, -0.72f, width, 23.0f,
-		C2D_Color32(0, 0, 0, 166));
-	C2D_DrawRectSolid(12.0f, 1.0f, -0.71f, width - 24.0f, 1.0f,
-		C2D_Color32(255, 255, 255, 20));
-
-	if(screen == ui::Screen::bottom)
-	{
-		C2D_DrawRectSolid(0.0f, 205.0f, -0.72f, width, 35.0f,
-			C2D_Color32(0, 0, 0, 166));
-		C2D_DrawRectSolid(12.0f, 206.0f, -0.71f, width - 24.0f, 1.0f,
-			C2D_Color32(255, 255, 255, 20));
 	}
 }
 
@@ -797,7 +833,7 @@ bool ui::RenderQueue::render_exclusive_frame(ui::Keys& keys)
 	RQ_ENTER_FRAME();
 	bool ret = true;
 
-	C2D_SceneBegin(g_top);
+	begin_top_scene();
 	if(user_background_active)
 		C2D_DrawImageAt(user_top_background, 0.0f, 0.0f, -0.9f);
 	else if(top_background->has_image())
@@ -805,7 +841,7 @@ bool ui::RenderQueue::render_exclusive_frame(ui::Keys& keys)
 	draw_nocturne_chrome(ui::Screen::top);
 	ret &= this->render_top(keys);
 
-	C2D_SceneBegin(g_bot);
+	begin_bottom_scene();
 	if(user_background_active)
 		C2D_DrawImageAt(user_bottom_background, 0.0f, 0.0f, -0.9f);
 	else if(bottom_background->has_image())
@@ -823,7 +859,7 @@ bool ui::RenderQueue::render_frame(ui::Keys& keys)
 	RQ_ENTER_FRAME();
 	bool ret = true;
 
-	C2D_SceneBegin(g_top);
+	begin_top_scene();
 	if(user_background_active)
 		C2D_DrawImageAt(user_top_background, 0.0f, 0.0f, -0.9f);
 	else if(top_background->has_image())
@@ -832,7 +868,7 @@ bool ui::RenderQueue::render_frame(ui::Keys& keys)
 	ret &= this->render_top(keys);
 	ret &= g_renderqueue.render_top(keys);
 
-	C2D_SceneBegin(g_bot);
+	begin_bottom_scene();
 	if(user_background_active)
 		C2D_DrawImageAt(user_bottom_background, 0.0f, 0.0f, -0.9f);
 	else if(bottom_background->has_image())
