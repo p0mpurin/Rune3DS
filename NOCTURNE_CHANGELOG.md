@@ -1,5 +1,9 @@
 # Nocturne changelog
 
+## 1.5.15
+
+- Switched Nocturne update detection to the GitHub Releases API to avoid raw-file cache lag
+
 ## 1.5.14
 
 - Fixed GitHub updater fetches by avoiding long release-asset redirects for version checks
