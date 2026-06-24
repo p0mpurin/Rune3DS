@@ -383,7 +383,8 @@ Result http::ResumableDownload::setup_handle(const char *url)
 		&& (this->flags & (flag_auth | flag_device_auth)))
 		TRYJ(httpcSelectRootCertChain(&this->hctx, hscert_chain));
 	
-	TRYJ(httpcSetSSLOpt(&this->hctx, SSLCOPT_DisableVerify));
+	if(strncmp(url, "https:", 6) == 0)
+		TRYJ(httpcSetSSLOpt(&this->hctx, SSLCOPT_DisableVerify));
 	TRYJ(httpcAddRequestHeaderField(&this->hctx, "User-Agent", USER_AGENT));
 	if(this->flags & http::ResumableDownload::flag_auth)
 	{
