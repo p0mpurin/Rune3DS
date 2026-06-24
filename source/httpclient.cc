@@ -379,7 +379,8 @@ Result http::ResumableDownload::setup_handle(const char *url)
 	/* Explicitly retain the connection for the duration of large transfers. */
 	TRYJ(httpcSetKeepAlive(&this->hctx, HTTPC_KEEPALIVE_ENABLED));
 	
-	if(hscert_der_bin_size && strncmp(url, "https:", 6) == 0)
+	if(hscert_der_bin_size && strncmp(url, "https:", 6) == 0
+		&& (this->flags & (flag_auth | flag_device_auth)))
 		TRYJ(httpcSelectRootCertChain(&this->hctx, hscert_chain));
 	
 	TRYJ(httpcSetSSLOpt(&this->hctx, SSLCOPT_DisableVerify));
