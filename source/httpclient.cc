@@ -220,11 +220,21 @@ Result http::ResumableDownload::perform_execute_once(const char *url, int redire
 	if(battery_is_critical())
 		return APPERR_CRITICAL_BAT;
 
+	ilog("[http] setup_handle url=%s", url);
 	if(R_FAILED(res = this->setup_handle(url)))
+	{
+		elog("[http] setup_handle FAILED 0x%08lX", res);
 		return res;
+	}
+	ilog("[http] setup_handle OK");
 
+	ilog("[http] httpcBeginRequest");
 	TRYJ(httpcBeginRequest(&this->hctx));
+	ilog("[http] httpcBeginRequest OK");
+
+	ilog("[http] httpcGetResponseStatusCode");
 	TRYJ(httpcGetResponseStatusCodeTimeout(&this->hctx, (u32 *)&status, this->timeout));
+	ilog("[http] status=%ld", status);
 
 	#if defined(EMULATOR) || defined(PRERELEASE)
 	if (status < 0) {
@@ -313,6 +323,7 @@ Result http::ResumableDownload::perform_execute_once(const char *url, int redire
 		}
 		if(this->flags & http::ResumableDownload::flag_exit) goto cancel;
 		res = httpcReceiveDataTimeout(&this->hctx, (u8 *) this->buffer, http::ResumableDownload::ChunkMaxSize, this->timeout);
+		if(res) ilog("[http] httpcReceiveData returned 0x%08lX chunk=%lu", res, (unsigned long)chunk_num);
 		if(this->flags & http::ResumableDownload::flag_exit) goto cancel;
 
 
@@ -359,6 +370,7 @@ Result http::ResumableDownload::perform_execute_once(const char *url, int redire
 	if(res == 0) this->notify();
 
 fail:
+	elog("[http] FAIL at chunk=%lu code=0x%08lX", (unsigned long)chunk_num, res);
 	this->close_handle();
 	this->flags &= ~(http::ResumableDownload::flag_active | http::ResumableDownload::flag_exit);
 	return res;

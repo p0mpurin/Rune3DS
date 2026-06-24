@@ -48,6 +48,7 @@ hsapi::Error& hsapi::last_error() { return last_err; }
 
 static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMethod reqmeth = HTTPC_METHOD_GET, const char *postdata = nullptr, u32 postdata_len = 0, bool vercheck_enabled = true, bool devauth_enabled = false)
 {
+	ilog("[basereq] url=%s", url.c_str());
 	http::ResumableDownload downloader(true, vercheck_enabled, devauth_enabled);
 	downloader.set_postdata(postdata, postdata_len);
 	downloader.set_target(url, reqmeth);
@@ -67,6 +68,7 @@ static Result basereq(const std::string& url, std::string& data, HTTPC_RequestMe
 	});
 
 	Result res = downloader.execute_once();
+	ilog("[basereq] execute_once returned 0x%08lX, data size=%lu", res, (unsigned long)data.size());
 	return res;
 }
 
@@ -367,9 +369,10 @@ Result hsapi::get_latest_version_string(std::string& ret)
 
 Result hsapi::get_nocturne_latest_version_string(std::string& ret)
 {
-	ilog("Getting latest Nocturne version");
+	ilog("[updater] checking %s/version.txt", NOCTURNE_UPDATE_BASE);
 	Result res = basereq(NOCTURNE_UPDATE_BASE "/version.txt",
 		ret, HTTPC_METHOD_GET, nullptr, 0, false);
+	ilog("[updater] basereq returned 0x%08lX data='%s'", res, R_SUCCEEDED(res) ? ret.c_str() : "(failed)");
 	if(R_FAILED(res)) return res;
 	trim(ret, " \t\n");
 	return OK;
