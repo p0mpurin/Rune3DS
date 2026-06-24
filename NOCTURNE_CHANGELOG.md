@@ -1,5 +1,10 @@
 # Nocturne changelog
 
+## 1.5.30
+
+- Validation build for the stock-style static Nocturne updater endpoint
+- Kept `/version` and `/3hs.cia` as the in-app update transport
+
 ## 1.5.29
 
 - Switched Nocturne's static updater check from `/version.txt` to stock-style `/version`
