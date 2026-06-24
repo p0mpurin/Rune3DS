@@ -121,7 +121,9 @@ bool ui::MenuSelect::render(ui::Keys& k)
 
 #define MOVE(with) do { with; if(this->cursor_move_callback) this->cursor_move_callback(); } while(0)
 	if((k.kDown & KEY_UP) && this->i > 0) MOVE(--this->i);
+	else if((k.kDown & KEY_UP) && this->i == 0) MOVE(this->i = this->btns.size() - 1);
 	if((k.kDown & KEY_DOWN) && this->i < this->btns.size() - 1) MOVE(++this->i);
+	else if((k.kDown & KEY_DOWN) && this->i == this->btns.size() - 1) MOVE(this->i = 0);
 	if(k.kDown & KEY_LEFT)
 	{
 		if(this->i >= MAX_PER_PAGE) MOVE(this->i -= MAX_PER_PAGE);

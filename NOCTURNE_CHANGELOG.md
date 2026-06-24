@@ -1,5 +1,15 @@
 # Nocturne changelog
 
+## 1.5.34
+
+- Bundled 3 default wallpapers — the app looks great from first launch
+- Wrap-around navigation in lists — scrolling past the end loops back to the top
+- Stable release for Universal-Updater
+
+## 1.5.33
+
+- UniStore update test
+
 ## 1.5.32
 
 - Centered the Universal-Updater notice and made it show only once (not every launch)

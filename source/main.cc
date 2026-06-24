@@ -431,6 +431,34 @@ int main(int argc, char* argv[])
 		mkdir("/3ds", 0777);
 		mkdir("/3ds/3hs", 0777);
 		mkdir("/3ds/3hs/backgrounds", 0777);
+
+		/* Copy the 3 default wallpapers from ROMFS to the SD card
+		 * so the app looks good on first launch. Don't overwrite
+		 * any files the user may already have. */
+		static const char *defaults[] = {
+			"romfs:/backgrounds/default-01.jpg",
+			"romfs:/backgrounds/default-02.jpg",
+			"romfs:/backgrounds/default-03.jpg",
+		};
+		for(size_t i = 0; i < sizeof(defaults)/sizeof(defaults[0]); ++i)
+		{
+			const char *romfs_path = defaults[i];
+			char sd_path[64];
+			snprintf(sd_path, sizeof(sd_path), "/3ds/3hs/backgrounds/default-%02lu.jpg", (unsigned long)(i + 1));
+			FILE *src = fopen(romfs_path, "rb");
+			if(!src) continue;
+			FILE *dst = fopen(sd_path, "wx"); /* exclusive: don't overwrite */
+			if(dst)
+			{
+				char buf[4096];
+				size_t n;
+				while((n = fread(buf, 1, sizeof(buf), src)))
+					fwrite(buf, 1, n, dst);
+				fclose(dst);
+			}
+			fclose(src);
+		}
+
 		ui::notice(str::background_first_launch, 42.0f);
 		mark_background_tip_seen();
 	}

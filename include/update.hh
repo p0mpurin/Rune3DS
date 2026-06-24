@@ -31,8 +31,8 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 5
-#define VERSION_PATCH 33
-#define VERSION_DESC "UniStore test" VERSION_SUFFIX
+#define VERSION_PATCH 34
+#define VERSION_DESC "Stable" VERSION_SUFFIX
 
 #define INT_TO_STR(i) INT_TO_STR_(i)
 #define INT_TO_STR_(i) #i
