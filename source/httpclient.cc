@@ -334,6 +334,13 @@ Result http::ResumableDownload::perform_execute_once(const char *url, int redire
 			goto fail;
 		}
 		if(this->flags & http::ResumableDownload::flag_exit) goto cancel;
+
+		if(this->totalSize > 0 && prev_pos >= this->totalSize)
+		{
+			res = 0;
+			break;
+		}
+
 		request_size = http::ResumableDownload::ChunkMaxSize;
 		if(this->totalSize > prev_pos)
 			request_size = MIN(request_size, this->totalSize - prev_pos);
@@ -346,6 +353,13 @@ Result http::ResumableDownload::perform_execute_once(const char *url, int redire
 		fail_stage = "progress";
 		nres = httpcGetDownloadSizeState(&this->hctx, &pos, nullptr);
 		if(R_FAILED(nres)) res = nres;
+		else if(this->totalSize > 0 && pos >= this->totalSize
+			&& R_FAILED(res) && res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING)
+		{
+			ilog("[http] receive returned 0x%08lX after completing known-length download (%lu/%lu bytes)",
+				res, (unsigned long)pos, (unsigned long)this->totalSize);
+			res = 0;
+		}
 		if((R_FAILED(res) && res != (Result) HTTPC_RESULTCODE_DOWNLOADPENDING))
 		{
 			/* Some servers close the connection after sending the full
@@ -403,15 +417,22 @@ Result http::ResumableDownload::perform_execute_once(const char *url, int redire
 	if(res == 0) this->notify();
 
 fail:
-	elog("[http] FAIL stage=%s chunk=%lu code=0x%08lX status=%ld pos=%lu prev=%lu total=%lu req=%lu url=%s",
-		fail_stage, (unsigned long)chunk_num, res, status, (unsigned long)pos,
-		(unsigned long)prev_pos, (unsigned long)this->totalSize,
-		(unsigned long)request_size, url);
-	snprintf(g_last_http_error, sizeof(g_last_http_error),
-		"%s c%lu r=0x%08lX st=%ld pos=%lu/%lu prev=%lu req=%lu",
-		fail_stage, (unsigned long)chunk_num, res, status,
-		(unsigned long)pos, (unsigned long)this->totalSize,
-		(unsigned long)prev_pos, (unsigned long)request_size);
+	if(R_FAILED(res))
+	{
+		elog("[http] FAIL stage=%s chunk=%lu code=0x%08lX status=%ld pos=%lu prev=%lu total=%lu req=%lu url=%s",
+			fail_stage, (unsigned long)chunk_num, res, status, (unsigned long)pos,
+			(unsigned long)prev_pos, (unsigned long)this->totalSize,
+			(unsigned long)request_size, url);
+		snprintf(g_last_http_error, sizeof(g_last_http_error),
+			"%s c%lu r=0x%08lX st=%ld pos=%lu/%lu prev=%lu req=%lu",
+			fail_stage, (unsigned long)chunk_num, res, status,
+			(unsigned long)pos, (unsigned long)this->totalSize,
+			(unsigned long)prev_pos, (unsigned long)request_size);
+	}
+	else
+	{
+		g_last_http_error[0] = '\0';
+	}
 	this->close_handle();
 	this->flags &= ~(http::ResumableDownload::flag_active | http::ResumableDownload::flag_exit);
 	return res;

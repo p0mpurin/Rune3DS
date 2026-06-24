@@ -1,5 +1,10 @@
 # Nocturne changelog
 
+## 1.5.23
+
+- Accepted 3DS HTTP receive timeouts when progress shows the full known-length response has arrived
+- Prevented successful HTTP cleanup from overwriting the last failure diagnostic
+
 ## 1.5.22
 
 - Added detailed on-screen diagnostics for startup updater HTTP failures
