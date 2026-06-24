@@ -28,6 +28,10 @@ Or download the CIA from [Releases](../../releases) and install manually.
 
 Use **Universal-Updater** on your 3DS. Add the Nocturne UniStore:
 
+<img src="assets/nocturne-unistore-qr.png" alt="Nocturne UniStore QR" width="320">
+
+Or manually add this URL to Universal-Updater:
+
 ```
 https://raw.githubusercontent.com/p0mpurin/just-an-hshop-fork/main/universal-updater/nocturne.unistore
 ```
