@@ -1,5 +1,11 @@
 # Nocturne changelog
 
+## 1.5.31
+
+- Removed the fragile launch-time Nocturne self-updater
+- Added a startup notice directing users to update Nocturne through Universal-Updater
+- Added a custom Nocturne UniStore that installs the latest GitHub release CIA
+
 ## 1.5.30
 
 - Validation build for the stock-style static Nocturne updater endpoint

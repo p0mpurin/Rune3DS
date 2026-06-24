@@ -39,7 +39,6 @@
 #include "queue.hh"
 #include "panic.hh"
 #include "hsapi.hh"
-#include "httpclient.hh"
 #include "more.hh"
 #include "next.hh"
 #include "i18n.hh"
@@ -49,10 +48,6 @@
 #define ENVINFO (* (u8 *) 0x1FF80014)
 #define VERSION_CHECK 1
 #define TIP_GIVER 0
-
-#ifndef NOCTURNE_UPDATE_BASE
-	#define NOCTURNE_UPDATE_BASE "http://nocturne.atwebpages.com"
-#endif
 
 ctr::thread<Handle &, Handle &> *wlan_thread = nullptr;
 static Handle wlan_thread_exit_event = 0;
@@ -744,36 +739,8 @@ int main(int argc, char* argv[])
 		block_app(str::luma_not_installed, str::install_luma);
 	}
 
-	ilog("Checking for updates");
-	Result update_res = 0xE7E3FFFF; /* invalid result value */
-	update::update_status us = update::update_app(update_res);
-
-	switch (us) {
-		case update::update_status::failed_update_check:
-			ilog("Update check failed (%08lX), continuing custom build", update_res);
-			if(http::http_last_error()[0])
-				ilog("Nocturne updater detail: %s", http::http_last_error());
-			break;
-		case update::update_status::failed_update_install:
-			ilog("Update install failed, app blocked");
-			block_app(str::update_install_failed, str::update_try_again_or_update_manually, update_res);
-			break;
-		case update::update_status::up_to_date:
-			ilog("up-to-date");
-			break;
-		case update::update_status::updated_successfully:
-			ilog("Successfully updated from " VERSION);
-			exit(0);
-			break;
-		case update::update_status::upstream_update_available:
-			ilog("New official 3hs source is available; Nocturne merge required");
-			ui::notice("A newer official 3hs release is available.\n\nNocturne will keep running so your UI and performance changes are preserved. The upstream source update must be merged into a new Nocturne build; installing the stock CIA would replace this fork.", 42.0f);
-			break;
-		case update::update_status::update_required:
-		case update::update_status::outdated_hb_release:
-			ilog("Upstream update state detected; continuing fork build");
-			break;
-	}
+	ilog("Skipping in-app updater; Nocturne updates are handled by Universal-Updater");
+	ui::notice("Nocturne no longer updates itself on launch.\n\nTo update safely, open Universal-Updater and install the latest Nocturne release from the Nocturne UniStore.", 42.0f);
 
 	ui::set_focus(false);
 #endif

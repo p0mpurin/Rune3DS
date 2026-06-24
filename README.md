@@ -41,11 +41,23 @@ The experimental direct-socket transport can be selected under **Settings → Pe
 
 ## Installation
 
-1. Download the latest CIA from [Releases](../../releases).
-2. Install it with FBI.
+1. Download the latest CIA from [Releases](../../releases) or install it from the Nocturne UniStore in Universal-Updater.
+2. Install it with FBI or Universal-Updater.
 3. Launch Nocturne from the HOME Menu.
 
 You can install a newer Nocturne CIA over an existing installation. If HOME Menu artwork remains cached, reboot the console or delete and reinstall the application once.
+
+### Universal-Updater
+
+Nocturne updates are handled through a custom Universal-Updater UniStore. In Universal-Updater, open **Settings -> Select UniStore**, press **+**, then enter or scan this UniStore URL:
+
+<img src="assets/nocturne-unistore-qr.png" alt="Nocturne Universal-Updater UniStore QR" width="320">
+
+```text
+https://raw.githubusercontent.com/p0mpurin/just-an-hshop-fork/main/universal-updater/nocturne.unistore
+```
+
+After adding it once, use Universal-Updater to install the latest Nocturne release. The store downloads `3hs.cia` from the newest GitHub release marked Latest.
 
 ### FBI QR install
 
@@ -67,23 +79,24 @@ Open **Settings → Background image** to choose one, then adjust **Wallpaper di
 
 ## Upstream updates
 
-Nocturne checks the official 3hs version for compatibility. It does not install the stock 3hs CIA automatically because doing so would overwrite the fork.
+Nocturne does not install the stock 3hs CIA automatically because doing so would overwrite the fork.
 
 When upstream publishes a new release, its source changes must be merged into Nocturne and a new Nocturne CIA must be built.
 
 ## Release checklist
 
-Nocturne's launch updater is based on the latest GitHub release assets. Before publishing a feature or fix release, keep these in sync:
+Nocturne updates are published through GitHub Releases and the custom Universal-Updater UniStore. Before publishing a feature or fix release, keep these in sync:
 
 - Bump `VERSION_MAJOR`, `VERSION_MINOR`, `VERSION_PATCH`, and `VERSION_DESC` in `include/update.hh`.
 - Update `nocturne-version` to the same plain version string, for example `1.5.24`.
+- Update `universal-updater/nocturne.unistore`: bump `storeInfo.revision`, app `version`, and `last_updated`.
 - Add release notes to `NOCTURNE_CHANGELOG.md`.
 - Build with `perl build.pl --target release`.
 - Create a matching tag and GitHub release, for example `v1.5.13`.
 - Attach both `3hs.cia` and `nocturne-version` to the GitHub release.
 - Mark the newest release as **Latest**.
 
-If the release `nocturne-version` asset is missing or does not match the compiled app version, installed clients may not see the update correctly.
+Universal-Updater installs `3hs.cia` from the latest non-prerelease GitHub release. If the newest release is not marked Latest or its `3hs.cia` asset is missing, users will not receive the correct build.
 
 ## Building
 

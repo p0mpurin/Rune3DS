@@ -1,6 +1,8 @@
 # Nocturne Vercel Updater
 
-This is a tiny static Vercel project for the in-app updater.
+This is a tiny static Vercel project kept for legacy updater testing.
+
+Current Nocturne releases use Universal-Updater instead of the in-app updater.
 
 It serves:
 

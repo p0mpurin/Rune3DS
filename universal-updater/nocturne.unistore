@@ -1,0 +1,42 @@
+{
+    "storeInfo": {
+        "title": "Nocturne",
+        "author": "p0mpurin",
+        "description": "Nocturne releases for Universal-Updater",
+        "url": "https://raw.githubusercontent.com/p0mpurin/just-an-hshop-fork/main/universal-updater/nocturne.unistore",
+        "file": "nocturne.unistore",
+        "version": 3,
+        "revision": 1531
+    },
+    "storeContent": [
+        {
+            "info": {
+                "title": "Nocturne",
+                "author": "p0mpurin",
+                "description": "An unofficial 3hs fork with a Nocturne interface, performance changes, and quality-of-life improvements.",
+                "category": ["utility"],
+                "console": ["3DS"],
+                "license": "gpl-3.0",
+                "last_updated": "2026-06-24 at 12:00 (UTC)",
+                "version": "v1.5.31"
+            },
+            "Install Nocturne.cia": [
+                {
+                    "type": "downloadRelease",
+                    "repo": "p0mpurin/just-an-hshop-fork",
+                    "file": "3hs.cia",
+                    "output": "sdmc:/Nocturne.cia",
+                    "includePrereleases": false
+                },
+                {
+                    "type": "installCia",
+                    "file": "/Nocturne.cia"
+                },
+                {
+                    "type": "deleteFile",
+                    "file": "sdmc:/Nocturne.cia"
+                }
+            ]
+        }
+    ]
+}
