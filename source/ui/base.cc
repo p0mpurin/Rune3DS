@@ -24,6 +24,7 @@
 #include "i18n.hh"
 #include "log.hh"
 #include "mng.hh"
+#include <string.h>
 
 #include <3rd/stb_image.h>
 #include <vector>
@@ -647,6 +648,27 @@ static bool make_cover_image(C2D_Image *out, const u8 *source, int sw, int sh, i
 	return true;
 }
 
+static u8 *load_file_to_memory(const char *path, size_t *out_size)
+{
+	FILE *f = fopen(path, "rb");
+	if(!f) return nullptr;
+	fseek(f, 0, SEEK_END);
+	size_t size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	u8 *buf = (u8 *)malloc(size);
+	if(buf)
+	{
+		if(fread(buf, 1, size, f) != size)
+		{
+			free(buf);
+			buf = nullptr;
+		}
+	}
+	fclose(f);
+	if(out_size) *out_size = size;
+	return buf;
+}
+
 bool ui::set_user_background(const std::string& path)
 {
 	if(path.empty())
@@ -662,15 +684,44 @@ bool ui::set_user_background(const std::string& path)
 		return true;
 	}
 
+	/* ROMFS files need to be loaded into memory first since stb_image's
+	 * fopen wrapper doesn't support the 3DS romfs:/ prefix. */
+	u8 *filebuf = nullptr;
+	size_t filebuf_size = 0;
+	const char *load_path = path.c_str();
+	if(strncmp(path.c_str(), "romfs:", 6) == 0)
+	{
+		filebuf = load_file_to_memory(path.c_str(), &filebuf_size);
+		if(!filebuf)
+		{
+			elog("background: failed to load ROMFS file %s", path.c_str());
+			return false;
+		}
+	}
+
 	int width = 0, height = 0, channels = 0;
-	if(!stbi_info(path.c_str(), &width, &height, &channels)
+	int info_ok;
+	if(filebuf)
+		info_ok = stbi_info_from_memory(filebuf, (int)filebuf_size, &width, &height, &channels);
+	else
+		info_ok = stbi_info(path.c_str(), &width, &height, &channels);
+
+	if(!info_ok
 		|| width <= 0 || height <= 0 || width > 4096 || height > 4096
 		|| (u64) width * height > 16000000ULL)
 	{
 		elog("background: unsupported dimensions for %s", path.c_str());
+		if(filebuf) free(filebuf);
 		return false;
 	}
-	u8 *bitmap = stbi_load(path.c_str(), &width, &height, &channels, 4);
+
+	u8 *bitmap;
+	if(filebuf)
+		bitmap = stbi_load_from_memory(filebuf, (int)filebuf_size, &width, &height, &channels, 4);
+	else
+		bitmap = stbi_load(path.c_str(), &width, &height, &channels, 4);
+
+	if(filebuf) free(filebuf);
 	if(!bitmap)
 	{
 		elog("background: failed to decode %s", path.c_str());
