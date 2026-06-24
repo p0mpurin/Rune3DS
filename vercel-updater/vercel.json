@@ -2,7 +2,7 @@
   "cleanUrls": false,
   "headers": [
     {
-      "source": "/nocturne-version",
+      "source": "/version.txt",
       "headers": [
         {
           "key": "Cache-Control",

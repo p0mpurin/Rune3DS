@@ -73,18 +73,18 @@ When upstream publishes a new release, its source changes must be merged into No
 
 ## Release checklist
 
-Nocturne's launch updater is based on GitHub Releases. Before publishing a feature or fix release, keep these in sync:
+Nocturne's launch updater is based on a simple static HTTP endpoint. Before publishing a feature or fix release, keep these in sync:
 
 - Bump `VERSION_MAJOR`, `VERSION_MINOR`, `VERSION_PATCH`, and `VERSION_DESC` in `include/update.hh`.
-- Update `nocturne-version` to the same plain version string, for example `1.5.13`.
+- Update `nocturne-version` and the deployed updater `version.txt` to the same plain version string, for example `1.5.20`.
 - Add release notes to `NOCTURNE_CHANGELOG.md`.
 - Build with `perl build.pl --target release`.
 - Create a matching tag and GitHub release, for example `v1.5.13`.
 - Attach both `3hs.cia` and `nocturne-version` to the GitHub release.
 - Mark the newest release as **Latest**.
-- Mirror `3hs.cia` and `nocturne-version` to the configured `NOCTURNE_UPDATE_BASE` endpoint used by release builds.
+- Mirror `3hs.cia` and `version.txt` to the configured `NOCTURNE_UPDATE_BASE` endpoint used by release builds.
 
-If `nocturne-version` is missing or does not match the compiled app version, installed clients may not see the update correctly.
+If the deployed version file is missing or does not match the compiled app version, installed clients may not see the update correctly.
 
 ## Building
 

@@ -328,7 +328,10 @@ Result http::ResumableDownload::perform_execute_once(const char *url, int redire
 			goto fail;
 		}
 		if(this->flags & http::ResumableDownload::flag_exit) goto cancel;
-		res = httpcReceiveDataTimeout(&this->hctx, (u8 *) this->buffer, http::ResumableDownload::ChunkMaxSize, this->timeout);
+		u32 request_size = http::ResumableDownload::ChunkMaxSize;
+		if(this->totalSize > prev_pos)
+			request_size = MIN(request_size, this->totalSize - prev_pos);
+		res = httpcReceiveDataTimeout(&this->hctx, (u8 *) this->buffer, request_size, this->timeout);
 		if(res) ilog("[http] httpcReceiveData returned 0x%08lX chunk=%lu", res, (unsigned long)chunk_num);
 		if(this->flags & http::ResumableDownload::flag_exit) goto cancel;
 

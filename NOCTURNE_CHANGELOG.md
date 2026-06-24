@@ -1,5 +1,10 @@
 # Nocturne changelog
 
+## 1.5.20
+
+- Fixed launch update checks against tiny static `version.txt` responses on the 3DS HTTP service
+- Kept HTTP receive requests bounded to the remaining response size so short version files do not time out
+
 ## 1.5.19
 
 - Moved Nocturne's in-app updater to the Vercel static update endpoint
