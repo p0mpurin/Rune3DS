@@ -1,5 +1,10 @@
 # Nocturne changelog
 
+## 1.5.19
+
+- Moved Nocturne's in-app updater to the Vercel static update endpoint
+- Mirrored the updater CIA in the Vercel site so the 3DS no longer depends on GitHub release downloads
+
 ## 1.5.18
 
 - Switched update metadata back to the tiny GitHub release asset now that long redirects are supported
