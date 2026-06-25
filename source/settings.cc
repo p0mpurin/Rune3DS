@@ -1491,64 +1491,58 @@ void show_settings()
 
 	bool focus = ui::set_focus(true);
 
-	for(;;)
-	{
-		ui::I18NEnabledRenderQueue queue;
-		ui::MenuSelect *ms;
-		ui::Text *desc;
+	ui::I18NEnabledRenderQueue queue;
+	ui::MenuSelect *ms;
+	ui::Text *desc;
 
-		ui::builder<ui::Text>(ui::Screen::top, cats[0].desc)
-			.x(ui::layout::center_x)
-			.y(36.0f)
-			.wrap()
-			.add_to(&desc, queue);
+	ui::builder<ui::Text>(ui::Screen::top, cats[0].desc)
+		.x(ui::layout::center_x)
+		.y(36.0f)
+		.wrap()
+		.add_to(&desc, queue);
 
-		auto sel_cb = [](int i) -> std::function<bool()> {
-			return [i]() -> bool {
-				show_settings_category(cats[i]);
-				return true;
-			};
-		};
-
-		ui::builder<ui::MenuSelect>(ui::Screen::bottom)
-			.when_changed([&desc, &ms]() -> bool {
-				desc->set_text(cats[ms->pos()].desc);
-				return true;
-			})
-			.add_to(&ms, queue);
-
-		for(size_t i = 0; i < sizeof(cats) / sizeof(cats[0]); ++i)
-			ms->add_row(i18n::getstr(cats[i].name), sel_cb((int)i));
-
-		auto reset_fn = [](u32) -> bool {
-			ui::RenderQueue::global()->render_and_then([]() -> void {
-				if(ui::Confirm::exec(str::sure_reset))
-				{
-					reset_settings();
-					ui::set_user_background("");
-					ui::ThemeManager::global()->reget();
-					ui::RenderQueue::global()->find_tag<ui::FreeSpaceIndicator>(ui::tag::free_indicator)->update();
-				}
-			});
+	auto sel_cb = [](int i) -> std::function<bool()> {
+		return [i]() -> bool {
+			show_settings_category(cats[i]);
 			return true;
 		};
+	};
 
-		ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_R)
-			.when_kdown(reset_fn)
-			.add_to(queue);
+	ui::builder<ui::MenuSelect>(ui::Screen::bottom)
+		.when_changed([&desc, &ms]() -> bool {
+			desc->set_text(cats[ms->pos()].desc);
+			return true;
+		})
+		.add_to(&ms, queue);
 
-		ui::builder<ui::Text>(ui::Screen::bottom, UI_GLYPH_R ": Reset to defaults")
-			.size(0.35f)
-			.x(ui::layout::center_x)
-			.y(218.0f)
-			.wrap()
-			.add_to(queue);
+	for(size_t i = 0; i < sizeof(cats) / sizeof(cats[0]); ++i)
+		ms->add_row(i18n::getstr(cats[i].name), sel_cb((int)i));
 
-		queue.render_finite_button(KEY_B);
-		if(!aptMainLoop())
-			break;
-	}
+	auto reset_fn = [](u32) -> bool {
+		ui::RenderQueue::global()->render_and_then([]() -> void {
+			if(ui::Confirm::exec(str::sure_reset))
+			{
+				reset_settings();
+				ui::set_user_background("");
+				ui::ThemeManager::global()->reget();
+				ui::RenderQueue::global()->find_tag<ui::FreeSpaceIndicator>(ui::tag::free_indicator)->update();
+			}
+		});
+		return true;
+	};
 
+	ui::builder<ui::ButtonCallback>(ui::Screen::top, KEY_R)
+		.when_kdown(reset_fn)
+		.add_to(queue);
+
+	ui::builder<ui::Text>(ui::Screen::bottom, UI_GLYPH_R ": Reset to defaults")
+		.size(0.35f)
+		.x(ui::layout::center_x)
+		.y(218.0f)
+		.wrap()
+		.add_to(queue);
+
+	queue.render_finite_button(KEY_B);
 	ui::set_focus(focus);
 }
 
